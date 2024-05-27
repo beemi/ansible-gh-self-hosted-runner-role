@@ -1,0 +1,18 @@
+---
+dependencies: []
+galaxy_info:
+  role_name: githubselfhostedrunner
+  author: Raj Beemi
+  description: Install GitHub self hosted runner
+  company: Jai Tech Ltd
+  license: license (GPL-2.0-or-later, MIT, etc)
+  min_ansible_version: 2.13.4
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - github
+    - self-hosted
+    - runner
+

@@ -1,0 +1,6 @@
+---
+runner_version: "2.316.1"
+github_org: "your-github-org"
+runner_name: "runner-{{ inventory_hostname }}"
+runner_labels: "self-hosted,{{ inventory_hostname }}"
+github_token: "YOUR_GITHUB_TOKEN"  # Replace with your actual token

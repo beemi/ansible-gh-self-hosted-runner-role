@@ -1,0 +1,62 @@
+---
+- name: Ensure dependencies are installed
+  apt:
+    name:
+      - curl
+      - tar
+      - jq
+      - sudo
+      - shasum
+    state: present
+    update_cache: yes
+
+- name: Create runner directory
+  file:
+    path: /home/{{ ansible_user }}/actions-runner
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Download runner package
+  get_url:
+    url: "https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-osx-x64-{{ runner_version }}.tar.gz"
+    dest: /home/{{ ansible_user }}/actions-runner/actions-runner-osx-x64-{{ runner_version }}.tar.gz
+    mode: '0755'
+
+- name: Validate runner package
+  shell: echo "392b9d7b6d5b4d4f3814dbf874641b894f0c72447cdf05ce93158832d2d49b6b  actions-runner-osx-x64-{{ runner_version }}.tar.gz" | shasum -a 256 -c
+  args:
+    chdir: /home/{{ ansible_user }}/actions-runner
+  register: shasum_check
+  failed_when: "'OK' not in shasum_check.stdout"
+
+- name: Extract runner package
+  unarchive:
+    src: /home/{{ ansible_user }}/actions-runner/actions-runner-osx-x64-{{ runner_version }}.tar.gz
+    dest: /home/{{ ansible_user }}/actions-runner
+    remote_src: yes
+
+- name: Configure the runner
+  shell: |
+    cd /home/{{ ansible_user }}/actions-runner
+    ./config.sh --url https://github.com/{{ github_org }} --token {{ github_token }} --name {{ runner_name }} --labels {{ runner_labels }}
+  args:
+    creates: /home/{{ ansible_user }}/actions-runner/.runner
+
+- name: Install runner service
+  shell: |
+    sudo ./svc.sh install
+  args:
+    chdir: /home/{{ ansible_user }}/actions-runner
+
+- name: Start runner service
+  shell: |
+    sudo ./svc.sh start
+  args:
+    chdir: /home/{{ ansible_user }}/actions-runner
+
+- name: Enable runner service
+  systemd:
+    name: actions.runner.{{ github_org }}.service
+    enabled: yes
+    state: started
