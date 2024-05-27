@@ -27,22 +27,23 @@ jobs:
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
 
-      - name: Calculate next version
+      - uses: paulhatch/semantic-version@v5.3.0
         id: next_version
-        run: |
-          echo "NEXT_VERSION=$(git describe --tags --abbrev=0 | awk -F. -v OFS=. '{$NF++;print}')" >> $GITHUB_ENV
+        with:
+          tag_prefix: "v"
+          minor_pattern: "(MINOR)"
 
       - name: Create new tag
         run: |
-          git tag ${{ env.NEXT_VERSION }}
-          git push origin ${{ env.NEXT_VERSION }}
+          git tag ${{ steps.next_version.outputs.version }}
+          git push origin ${{ steps.next_version.outputs.version }}
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.NEXT_VERSION }}
-          release_name: Release ${{ env.NEXT_VERSION }}
+          tag_name: ${{ steps.next_version.outputs.version }}
+          release_name: Release ${{ steps.next_version.outputs.version }}
           draft: false
           prerelease: false
