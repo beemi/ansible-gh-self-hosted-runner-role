@@ -1,38 +1,86 @@
-Role Name
-=========
+# GitHub Runner and Docker Setup Ansible Roles
 
-A brief description of the role goes here.
+This repository contains two Ansible roles:
+1. `github_runner`: Sets up a GitHub self-hosted runner on Ubuntu.
+2. `docker_setup`: Installs Docker and Docker Compose on Ubuntu.
 
-Requirements
-------------
+## Requirements
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+These roles require Ansible to be installed on the control machine. The target nodes should be running Ubuntu 22.04 or later.
 
-Role Variables
---------------
+## Role Variables
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+### github_runner
 
-Dependencies
-------------
+| Variable          | Default Value         | Description                                                         |
+|-------------------|-----------------------|---------------------------------------------------------------------|
+| `runner_version`  | `"2.316.1"`           | The version of the GitHub runner to install.                        |
+| `github_org`      | `"your-github-org"`   | The GitHub organization to which the runner will be registered.     |
+| `runner_name`     | `"runner-{{ inventory_hostname }}"` | The name of the runner.                               |
+| `runner_labels`   | `"self-hosted,{{ inventory_hostname }}"` | Labels to assign to the runner.                        |
+| `github_token`    | `"YOUR_GITHUB_TOKEN"` | The GitHub token to register the runner.                           |
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+### docker_setup
 
-Example Playbook
-----------------
+| Variable               | Default Value | Description                                      |
+|------------------------|---------------|--------------------------------------------------|
+| `docker_version`       | `"5:20.10"`   | The version of Docker to install.                |
+| `docker_compose_version` | `"1.29.2"`   | The version of Docker Compose to install.        |
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+## Dependencies
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+None.
 
-License
--------
+## Example Playbook
+
+### Setting up GitHub Runner
+
+```yaml
+- hosts: servers
+  roles:
+    - role: github_runner
+      vars:
+        runner_version: "2.316.1"
+        github_org: "your-github-org"
+        runner_name: "my-runner"
+        runner_labels: "self-hosted,my-runner"
+        github_token: "YOUR_GITHUB_TOKEN"
+```
+
+### Setting up Docker and Docker Compose
+
+```yaml
+- hosts: servers
+  roles:
+    - role: docker_setup
+      vars:
+        docker_version: "5:20.10"
+        docker_compose_version: "1.29.2"
+```
+
+### Full Playbook Example
+
+```yaml
+- hosts: servers
+  roles:
+    - role: github_runner
+      vars:
+        runner_version: "2.316.1"
+        github_org: "your-github-org"
+        runner_name: "my-runner"
+        runner_labels: "self-hosted,my-runner"
+        github_token: "YOUR_GITHUB_TOKEN"
+
+    - role: docker_setup
+      vars:
+        docker_version: "5:20.10"
+        docker_compose_version: "1.29.2"
+```
+
+## License
 
 BSD
 
-Author Information
-------------------
+## Author Information
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+These roles were created by [Your Name](mailto:your-email@example.com). For more information, visit [your website](http://yourwebsite.com).
