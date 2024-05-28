@@ -1,14 +1,7 @@
 ---
-- name: Ensure dependencies are installed
-  apt:
-    name:
-      - curl
-      - tar
-      - jq
-      - sudo
-      - shasum
-    state: present
-    update_cache: yes
+- name: Install Docker compose as service
+  tags: configuration
+  include_tasks: docker.yml
 
 - name: Create runner directory
   file:

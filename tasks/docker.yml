@@ -1,0 +1,84 @@
+---
+- name: Run apt upgrade
+  tags: configuration
+  become: yes
+  become_method: sudo
+  shell: |
+    apt update
+
+- name: Install a list of packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - tar
+      - jq
+      - sudo
+      - shasum
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+      - gnupg-agent
+      - awscli
+      - ca-certificates
+      - software-properties-common
+      - apt-transport-https
+    state: present
+
+- name: Add docker apt signing key
+  tags: configuration
+  apt_key:
+    url: "https://download.docker.com/linux/ubuntu/gpg"
+    state: present
+
+- name: Add docker repository
+  tags: configuration
+  apt_repository:
+    repo: "deb https://download.docker.com/linux/ubuntu {{ansible_distribution_release}} stable main"
+    state: present
+    filename: docker
+
+- name: Install docker
+  tags: configuration
+  apt:
+    name: "docker-ce"
+
+- name: Ensure group "docker" exists
+  tags: configuration
+  group:
+    name: docker
+    state: present
+
+- name: adding amelco user to group 'docker'
+  tags: configuration
+  user:
+    name: {{ ansible_user }}
+    groups: docker
+    append: yes
+
+- name: Download latest docker-compose
+  tags: configuration
+  become: yes
+  become_method: sudo
+  get_url:
+    url: "https://github.com/docker/compose/releases/latest/download/docker-compose-{{ ansible_system }}-{{ ansible_machine }}"
+    dest: /usr/local/bin/docker-compose
+    mode: '0755'
+    force: yes
+
+- name: Make docker-compose executable
+  tags: configuration
+  become: yes
+  become_method: sudo
+  file:
+    path: /usr/local/bin/docker-compose
+    mode: '0755'
+
+- name: Install pip docker and docker compose
+  tags: configuration
+  pip:
+    name: "{{item}}"
+  with_items:
+    - docker
+    - docker-compose
+
