@@ -31,7 +31,8 @@ jobs:
         id: next_version
         with:
           tag_prefix: "v"
-          minor_pattern: "(MINOR)"
+          bump_each_commit: true
+          bump_each_commit_patch_pattern: "(PATCH)"
 
       - name: Create new tag
         run: |
